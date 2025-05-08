@@ -3,6 +3,7 @@ export interface User {
   enable: boolean;
   name: string;
   lastname: string;
+  email: string;
   region: string;
   country: string;
   createdAt: Date;

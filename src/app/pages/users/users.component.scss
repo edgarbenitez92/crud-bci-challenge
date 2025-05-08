@@ -17,5 +17,9 @@
       font-size: 1.1rem;
       color: #666;
     }
+
+    @media (min-width: 768px) {
+      text-align: left;
+    }
   }
 }

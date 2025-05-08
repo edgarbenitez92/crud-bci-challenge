@@ -1,8 +1,11 @@
-import { Component, OnInit, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
+import { map, tap } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -10,9 +13,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 
+import { ExpandAnimation } from '../../shared/animations/expaded-animations.animation';
 import { User } from '../../shared/interfaces/user.interface';
 import { UsersService } from '../../services/users.service';
-import { finalize } from 'rxjs/operators';
+import { UtilsService } from '../../services/utils.service';
 
 @Component({
   selector: 'app-users-table',
@@ -26,76 +30,88 @@ import { finalize } from 'rxjs/operators';
     MatProgressSpinnerModule,
     MatSortModule,
     MatTableModule,
-    NgClass
+    MatDividerModule,
+    NgClass,
   ],
   templateUrl: './users-table.component.html',
-  styleUrls: ['./users-table.component.scss']
+  styleUrls: ['./users-table.component.scss'],
+  animations: [ExpandAnimation],
 })
-export class UsersTableComponent implements OnInit {
+export class UsersTableComponent {
   private usersService = inject(UsersService);
+  private readonly utilsService = inject(UtilsService);
 
-  @ViewChild('sortUsers') sortUsers!: MatSort;
+  // Convert users stream to signal
+  private readonly users = toSignal(
+    this.usersService.getUsers().pipe(
+      map(users => {
+        const dataSource = new MatTableDataSource(users);
+        dataSource.filterPredicate = (data: User, filter: string) => {
+          const searchStr = `${data.name} ${data.lastname} ${data.country}`.toLowerCase();
+          return searchStr.indexOf(filter) !== -1;
+        };
+        return dataSource;
+      })
+    ),
+    { initialValue: new MatTableDataSource<User>([]) }
+  );
 
-  isLoading = signal<boolean>(true);
-  dataSource = signal<MatTableDataSource<User>>(new MatTableDataSource<User>([]));
-  noResults = signal<boolean>(false);
+  expandedElementId = signal<number | null>(null);
+
+  // Convert resize observable to signal
+  readonly isMobile = toSignal(
+    this.utilsService.isResizing.pipe(
+      tap(() => this.expandedElementId.set(null)),
+      map(() => this.utilsService.isMobileScreen())
+    ),
+    { initialValue: this.utilsService.isMobileScreen() }
+  );
+
+  // Computed signal for filtered data
+  private filterValue = signal('');
+  usersDataSource = computed(() => {
+    const dataSource = this.users();
+    dataSource.filter = this.filterValue().toLowerCase();
+    return dataSource;
+  });
+
+  isLoading = computed(() => !this.users()?.data?.length);
+  noResults = computed(() => {
+    const dataSource = this.usersDataSource();
+    return !!this.filterValue() && !dataSource.filteredData.length;
+  });
 
   displayedColumns = signal<string[]>([
     'name',
-    'lastName',
+    'email',
     'country',
     'enable',
     'updatedAt',
-    'actions'
+    'actions',
+    'seeDetails'
   ]);
 
-  ngOnInit(): void {
-    this.loadUsers();
-  }
-
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    const dataSource = this.dataSource();
-    dataSource.filter = filterValue.trim().toLowerCase();
-
-    this.noResults.set(!dataSource.filteredData.length);
+    const value = (event.target as HTMLInputElement).value;
+    this.filterValue.set(value.trim());
   }
 
-  editUser(user: User): void {
+  expandDetailRow({ id }: User) {
+    if (!this.isMobile()) return;
+    this.expandedElementId.set(this.expandedElementId() === id ? null : id);
+  }
+
+  editUser(event: Event, user: User): void {
+    event.stopPropagation();
     console.log('Edit user:', user);
   }
 
-  deleteUser(user: User): void {
+  deleteUser(event: Event, user: User): void {
+    event.stopPropagation();
     console.log('Delete user:', user);
   }
 
-  private loadUsers(): void {
-    this.isLoading.set(true);
-    this.usersService.getUsers()
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (users) => {
-          const dataSource = new MatTableDataSource(users);
-
-          // Set the sort 
-          this.sortUsersDataSource(dataSource, this.sortUsers);
-
-          // Set the filter predicate
-          dataSource.filterPredicate = (data: User, filter: string) => {
-            const searchStr = `${data.name} ${data.lastname} ${data.country}`.toLowerCase();
-            return searchStr.indexOf(filter) !== -1;
-          };
-
-          // Set the data source
-          this.dataSource.set(dataSource);
-        },
-        error: (error) => {
-          console.error('Error loading users:', error);
-        }
-      });
-  }
-
-  sortUsersDataSource(
+  private sortUsersDataSource(
     dataSource: MatTableDataSource<User>,
     sortTable: MatSort
   ) {

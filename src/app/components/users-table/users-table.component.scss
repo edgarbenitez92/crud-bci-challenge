@@ -16,17 +16,40 @@
     min-height: 200px;
   }
 
+  .table-wrapper {
+    max-height: calc(100vh - 250px);
+    overflow: auto;
+    border-radius: 4px;
+  }
+
   table {
     width: 100%;
+
+    @media (min-width: 992px) {
+      tr {
+        &:hover {
+          cursor: pointer;
+          background-color: #f7f7f7;
+        }
+      }
+    }
+
+    .headers-table {
+      background-color: #002b49;
+      color: #f1f1f1;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
 
     .center-cell {
       text-align: center;
     }
 
     .mat-mdc-header-cell {
-      font-weight: bold;
-      font-size: 14px;
-
       ::ng-deep .mat-sort-header-container {
         justify-content: center;
       }
@@ -52,6 +75,66 @@
 
     .edit-button {
       margin-right: 8px;
+    }
+
+    .expanded-row {
+      text-align: center !important;
+      height: 0;
+
+      .row-detail-expanded {
+        background: #f7f7f7;
+
+        .expanded {
+          padding: 1rem 0.5rem;
+        }
+
+        .user-details-container {
+          .detail-user {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+
+            .column {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+            }
+          }
+
+          .actions-user {
+            display: flex;
+            flex-direction: column;
+            margin-top: 15px;
+
+            .editing-title {
+              text-align: center;
+              font-weight: bold;
+            }
+
+            .actions-container {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-around;
+              margin-top: 20px;
+              margin-bottom: 20px;
+
+              .action {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                line-height: normal;
+
+                mat-icon {
+                  margin-top: .5rem;
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     .no-data-message {
