@@ -1,26 +1,26 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { Observable, of } from 'rxjs';
 
 import { User } from '../shared/interfaces/user.interface';
-import { USERS_MOCK } from '../shared/mock/users.mock';
+import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
-  private users = signal<User[]>(USERS_MOCK);
+  private readonly localStorageService = inject(LocalStorageService);
 
-  getUsers(delayTime: number = 0): Observable<User[]> {
-    return of(this.users()).pipe(
-      delay(delayTime) // Simulate network delay by passing a delay time
-    );
+  getUsers(delayMs: number = 1000): Observable<User[]> {
+    const users = this.localStorageService.getItem<User[]>(this.localStorageService.getUsersKey()) || [];
+    return of(users).pipe(delay(delayMs));
   }
 
-  deleteUser(userId: number): Observable<User[]> {
-    // Update the internal state
-    this.users.update(currentUsers => currentUsers.filter(user => user.id !== userId));
+  deleteUser(userId: number): Observable<void> {
+    const users = this.localStorageService.getItem<User[]>(this.localStorageService.getUsersKey()) || [];
+    const updatedUsers = users.filter(user => user.id !== userId);
+    this.localStorageService.setItem(this.localStorageService.getUsersKey(), updatedUsers);
 
-    // Return the updated users
-    return this.getUsers(500);
+    return of(void 0).pipe(delay(1000));
   }
 }
