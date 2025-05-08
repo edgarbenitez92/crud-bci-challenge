@@ -1,0 +1,55 @@
+.dialog-title {
+  margin: 0;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 250px;
+  padding: 0 0.5rem;
+
+  @media (min-width: 768px) {
+    min-width: 420px;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: #f1f1f1;
+  }
+
+  .status-field {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+
+    ::ng-deep {
+      .mat-mdc-form-field {
+        flex: 1;
+      }
+
+      .mdc-switch {
+        margin: 0;
+      }
+
+      .mat-mdc-slide-toggle {
+        margin: 0.5rem 0;
+      }
+    }
+  }
+}
+
+.dialog-actions {
+  padding: 0 1rem 1rem;
+  gap: 0.5rem;
+
+  .action-button {
+    min-width: 100px;
+
+    &.loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}

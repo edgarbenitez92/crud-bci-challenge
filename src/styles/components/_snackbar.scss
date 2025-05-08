@@ -14,3 +14,17 @@
     color: white;
   }
 }
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #f44336;
+  --mat-mdc-snack-bar-button-color: white;
+  --mdc-snackbar-supporting-text-color: white;
+
+  .mdc-snackbar__surface {
+    background-color: #f44336;
+  }
+
+  .mat-mdc-snack-bar-action {
+    color: white;
+  }
+}

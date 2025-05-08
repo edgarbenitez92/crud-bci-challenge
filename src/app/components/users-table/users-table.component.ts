@@ -18,6 +18,7 @@ import { ExpandAnimation } from '../../shared/animations/expaded-animations.anim
 import { SnackBarService } from '../../services/snack-bar.service';
 import { User } from '../../shared/interfaces/user.interface';
 import { UserDeleteDialogComponent } from '../dialogs/user-delete-dialog/user-delete-dialog.component';
+import { UserFormDialogComponent } from '../dialogs/user-form-dialog/user-form-dialog.component';
 import { UsersService } from '../../services/users.service';
 import { UtilsService } from '../../services/utils.service';
 
@@ -125,9 +126,17 @@ export class UsersTableComponent implements OnInit {
     this.expandedElementId.set(this.expandedElementId() === id ? null : id);
   }
 
-  editUser(event: Event, user: User): void {
+  openEditUserDialog(event: Event, user: User): void {
     event.stopPropagation();
-    console.log('Edit user:', user);
+
+    const dialogRef = this.dialog.open(UserFormDialogComponent, {
+      data: user,
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) this.loadUsers();
+    });
   }
 
   openDeleteUserDialog(event: Event, user: User): void {
@@ -147,6 +156,7 @@ export class UsersTableComponent implements OnInit {
 
   deleteUser(userId: number): void {
     this.isLoading.set(true);
+
     this.usersService.deleteUser(userId)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
@@ -154,7 +164,7 @@ export class UsersTableComponent implements OnInit {
           this.loadUsers();
 
           // Show success notification
-          this.snackBarService.showSuccessNotification('Usuario eliminado exitosamente');
+          this.snackBarService.showSuccessNotification('User deleted successfully');
         },
         error: () => console.error('Error deleting user'),
       });

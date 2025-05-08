@@ -1,0 +1,84 @@
+<h2 mat-dialog-title class="dialog-title">
+  {{data ? 'Edit User - ' + data.name + ' ' + data.lastname : 'Create User'}}
+</h2>
+
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <div class="form-container">
+      <!-- Name -->
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter name">
+        @if (nameControl?.touched && nameErrorMessage) {
+        <mat-error>{{ nameErrorMessage }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Last Name -->
+      <mat-form-field appearance="outline">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastname" placeholder="Enter last name">
+        @if (lastnameControl?.touched && lastnameErrorMessage) {
+        <mat-error>{{ lastnameErrorMessage }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Email -->
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" placeholder="Enter email" type="email"
+          [readonly]="data?.id ? true : false">
+        @if (emailControl?.touched && emailErrorMessage) {
+        <mat-error>{{ emailErrorMessage }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Country -->
+      <mat-form-field appearance="outline">
+        <mat-label>Country</mat-label>
+        <input matInput formControlName="country" placeholder="Search country" [matAutocomplete]="auto">
+        @if (countryControl?.touched && countryErrorMessage) {
+        <mat-error>{{ countryErrorMessage }}</mat-error>
+        }
+        @if (isSearchingCountries()) {
+        <mat-progress-spinner matSuffix mode="indeterminate" diameter="20"></mat-progress-spinner>
+        }
+      </mat-form-field>
+
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onCountrySelected($event)">
+        @for (country of countries(); track country.name.common) {
+        <mat-option [value]="country.name.common">
+          {{country.name.common}}
+        </mat-option>
+        }
+      </mat-autocomplete>
+
+      @if (data) {
+      <!-- Status -->
+      <div class="status-field">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <input matInput [value]="userForm.get('enable')?.value ? 'Active' : 'Inactive'" readonly>
+        </mat-form-field>
+        <mat-slide-toggle formControlName="enable" color="primary"></mat-slide-toggle>
+      </div>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading()" class="action-button">
+      Cancel
+    </button>
+
+    <button mat-flat-button color="primary" type="submit"
+      [disabled]="!userForm.dirty || userForm.invalid || isLoading()" class="action-button"
+      [class.loading]="isLoading()">
+      @if (isLoading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+      {{data ? 'Update' : 'Create'}}
+      }
+    </button>
+  </mat-dialog-actions>
+</form>
