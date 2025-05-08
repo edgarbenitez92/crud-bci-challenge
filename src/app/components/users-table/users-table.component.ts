@@ -85,13 +85,17 @@ export class UsersTableComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.isLoading.set(true);
+
+    // Simulate delay in loading users
+    setTimeout(() => {
+      this.loadUsers();
+    }, 1000);
   }
 
   loadUsers(): void {
-    this.isLoading.set(true);
 
-    this.usersService.getUsers(500)
+    this.usersService.getUsers(0)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe(users => {
         const dataSource = new MatTableDataSource(users);
@@ -139,6 +143,7 @@ export class UsersTableComponent implements OnInit {
   }
 
   deleteUser(userId: number): void {
+    this.isLoading.set(true);
     this.usersService.deleteUser(userId)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
