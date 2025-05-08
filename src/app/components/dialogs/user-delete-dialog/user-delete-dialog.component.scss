@@ -1,0 +1,12 @@
+.delete-dialog {
+  .warning {
+    color: #f44336;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+
+  mat-dialog-actions {
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+}

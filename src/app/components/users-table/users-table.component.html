@@ -17,7 +17,7 @@
   <!-- Table -->
   @if (!isLoading()) {
   <div class="table-wrapper">
-    <table mat-table [dataSource]="usersDataSource()" multiTemplateDataRows class="mat-elevation-z8">
+    <table mat-table [dataSource]="usersDataSource()" multiTemplateDataRows class="mat-elevation-z8 fade-in">
       <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef class="headers-table">Name</th>
@@ -26,8 +26,8 @@
 
       <!-- Email Column -->
       <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef class="headers-table">Email</th>
-        <td mat-cell *matCellDef="let user">{{user.email}}</td>
+        <th mat-header-cell *matHeaderCellDef class="headers-table" [hidden]="isMobile()">Email</th>
+        <td mat-cell *matCellDef="let user" [hidden]="isMobile()">{{user.email}}</td>
       </ng-container>
 
       <!-- Country Column -->
@@ -48,8 +48,7 @@
 
       <!-- Updated At Column -->
       <ng-container matColumnDef="updatedAt">
-        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="headers-table">Last update
-        </th>
+        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="headers-table">Last update</th>
         <td mat-cell *matCellDef="let user" class="center-cell" [hidden]="isMobile()">
           {{user.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}
         </td>
@@ -62,15 +61,14 @@
           <button mat-mini-fab color="primary" class="edit-button" (click)="editUser($event, user)">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-mini-fab color="warn" class="delete-button" (click)="deleteUser($event, user)">
+          <button mat-mini-fab color="warn" class="delete-button" (click)="openDeleteUserDialog($event, user)">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="seeDetails">
-        <th mat-header-cell *matHeaderCellDef class="center-cell headers-table" [hidden]="!isMobile()"> See Details
-        </th>
+        <th mat-header-cell *matHeaderCellDef class="center-cell headers-table" [hidden]="!isMobile()">See Details</th>
         <td mat-cell *matCellDef="let element" class="center-cell" [hidden]="!isMobile()">
           <mat-icon>
             {{ expandedElementId() === element.id ? 'expand_less' : 'expand_more'}}
@@ -113,7 +111,7 @@
                   <mat-icon color="primary">edit</mat-icon>
                 </div>
 
-                <div class="action" (click)="deleteUser($event, element)">
+                <div class="action" (click)="openDeleteUserDialog($event, element)">
                   Delete User
                   <mat-icon color="warn">delete</mat-icon>
                 </div>
@@ -130,7 +128,7 @@
             @if (searchInput.value) {
             No results found for "{{searchInput.value}}"
             } @else {
-            No data available
+            No users created
             }
           </div>
         </td>

@@ -10,9 +10,17 @@ import { USERS_MOCK } from '../shared/mock/users.mock';
 export class UsersService {
   private users = signal<User[]>(USERS_MOCK);
 
-  getUsers(): Observable<User[]> {
+  getUsers(delayTime: number = 0): Observable<User[]> {
     return of(this.users()).pipe(
-      delay(1500) // Simulate network delay of 1 second to show loading
+      delay(delayTime) // Simulate network delay by passing a delay time
     );
+  }
+
+  deleteUser(userId: number): Observable<User[]> {
+    // Update the internal state
+    this.users.update(currentUsers => currentUsers.filter(user => user.id !== userId));
+
+    // Return the updated users
+    return this.getUsers(500);
   }
 }

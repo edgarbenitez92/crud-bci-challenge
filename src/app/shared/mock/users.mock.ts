@@ -47,7 +47,7 @@ export const USERS_MOCK: User[] = [
   },
   {
     id: 5,
-    enable: true,
+    enable: false,
     name: 'Sophie',
     lastname: 'Martin',
     email: 'sophie.martin@example.com',

@@ -1,20 +1,21 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
-import { map, tap } from 'rxjs/operators';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { finalize, map, tap } from 'rxjs/operators';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 
 import { ExpandAnimation } from '../../shared/animations/expaded-animations.animation';
 import { User } from '../../shared/interfaces/user.interface';
+import { UserDeleteDialogComponent } from '../dialogs/user-delete-dialog/user-delete-dialog.component';
 import { UsersService } from '../../services/users.service';
 import { UtilsService } from '../../services/utils.service';
 
@@ -28,7 +29,6 @@ import { UtilsService } from '../../services/utils.service';
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    MatSortModule,
     MatTableModule,
     MatDividerModule,
     NgClass,
@@ -37,49 +37,34 @@ import { UtilsService } from '../../services/utils.service';
   styleUrls: ['./users-table.component.scss'],
   animations: [ExpandAnimation],
 })
-export class UsersTableComponent {
+export class UsersTableComponent implements OnInit {
   private usersService = inject(UsersService);
   private readonly utilsService = inject(UtilsService);
+  private readonly dialog = inject(MatDialog);
 
-  // Convert users stream to signal
-  private readonly users = toSignal(
-    this.usersService.getUsers().pipe(
-      map(users => {
-        const dataSource = new MatTableDataSource(users);
-        dataSource.filterPredicate = (data: User, filter: string) => {
-          const searchStr = `${data.name} ${data.lastname} ${data.country}`.toLowerCase();
-          return searchStr.indexOf(filter) !== -1;
-        };
-        return dataSource;
+  usersDataSource = signal<MatTableDataSource<User>>(new MatTableDataSource<User>([]));
+  expandedElementId = signal<number | null>(null);
+  filterValue = signal('');
+
+  isLoading = signal<boolean>(false);
+
+  noResults = toSignal(
+    toObservable(this.filterValue).pipe(
+      map(filter => {
+        const dataSource = this.usersDataSource();
+        return !!filter && !dataSource.filteredData.length;
       })
     ),
-    { initialValue: new MatTableDataSource<User>([]) }
+    { initialValue: false }
   );
 
-  expandedElementId = signal<number | null>(null);
-
-  // Convert resize observable to signal
-  readonly isMobile = toSignal(
+  isMobile = toSignal(
     this.utilsService.isResizing.pipe(
       tap(() => this.expandedElementId.set(null)),
       map(() => this.utilsService.isMobileScreen())
     ),
     { initialValue: this.utilsService.isMobileScreen() }
   );
-
-  // Computed signal for filtered data
-  private filterValue = signal('');
-  usersDataSource = computed(() => {
-    const dataSource = this.users();
-    dataSource.filter = this.filterValue().toLowerCase();
-    return dataSource;
-  });
-
-  isLoading = computed(() => !this.users()?.data?.length);
-  noResults = computed(() => {
-    const dataSource = this.usersDataSource();
-    return !!this.filterValue() && !dataSource.filteredData.length;
-  });
 
   displayedColumns = signal<string[]>([
     'name',
@@ -91,9 +76,41 @@ export class UsersTableComponent {
     'seeDetails'
   ]);
 
+  constructor() {
+    effect(() => {
+      const dataSource = this.usersDataSource();
+      const filter = this.filterValue();
+      dataSource.filter = filter.toLowerCase();
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.isLoading.set(true);
+
+    this.usersService.getUsers(500)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe(users => {
+        const dataSource = new MatTableDataSource(users);
+        this.usersDataSource.set(this.applyFilterPredicate(dataSource));
+      });
+  }
+
+  private applyFilterPredicate(dataSource: MatTableDataSource<User>): MatTableDataSource<User> {
+    dataSource.filterPredicate = (data: User, filter: string) => {
+      const searchStr = `${data.name} ${data.lastname} ${data.country}`.toLowerCase();
+      return searchStr.indexOf(filter) !== -1;
+    };
+
+    return dataSource;
+  }
+
   applyFilter(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.filterValue.set(value.trim());
+    const value = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.filterValue.set(value);
   }
 
   expandDetailRow({ id }: User) {
@@ -106,40 +123,27 @@ export class UsersTableComponent {
     console.log('Edit user:', user);
   }
 
-  deleteUser(event: Event, user: User): void {
+  openDeleteUserDialog(event: Event, user: User): void {
     event.stopPropagation();
-    console.log('Delete user:', user);
-  }
 
-  private sortUsersDataSource(
-    dataSource: MatTableDataSource<User>,
-    sortTable: MatSort
-  ) {
-    dataSource.data.sort((a, b) => {
-      if (a.lastname && b.lastname) {
-        return a.lastname.localeCompare(b.lastname);
-      }
-      return 0;
+    const dialogRef = this.dialog.open(UserDeleteDialogComponent, {
+      data: user
     });
 
-    dataSource.sortingDataAccessor = (row: User, columnName: string): string | number => {
-      switch (columnName) {
-        case 'name':
-          return row.name || '';
-        case 'lastname':
-          return row.lastname || '';
-        case 'country':
-          return row.country || '';
-        case 'enable':
-          return row.enable ? 1 : 0;
-        case 'updatedAt':
-          return row.updatedAt ? row.updatedAt.getTime() : 0;
-        default:
-          const value = row[columnName as keyof User];
-          return value !== undefined && value !== null ? String(value) : '';
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.isLoading.set(true);
+        this.deleteUser(user.id);
       }
-    };
+    });
+  }
 
-    dataSource.sort = sortTable;
+  deleteUser(userId: number): void {
+    this.usersService.deleteUser(userId)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        next: () => this.loadUsers(),
+        error: () => console.error('Error deleting user'),
+      });
   }
 }
