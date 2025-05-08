@@ -11,9 +11,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 
 import { ExpandAnimation } from '../../shared/animations/expaded-animations.animation';
+import { SnackBarService } from '../../services/snack-bar.service';
 import { User } from '../../shared/interfaces/user.interface';
 import { UserDeleteDialogComponent } from '../dialogs/user-delete-dialog/user-delete-dialog.component';
 import { UsersService } from '../../services/users.service';
@@ -25,12 +27,13 @@ import { UtilsService } from '../../services/utils.service';
     DatePipe,
     MatButtonModule,
     MatChipsModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     MatTableModule,
-    MatDividerModule,
     NgClass,
   ],
   templateUrl: './users-table.component.html',
@@ -41,6 +44,7 @@ export class UsersTableComponent implements OnInit {
   private usersService = inject(UsersService);
   private readonly utilsService = inject(UtilsService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBarService = inject(SnackBarService);
 
   usersDataSource = signal<MatTableDataSource<User>>(new MatTableDataSource<User>([]));
   expandedElementId = signal<number | null>(null);
@@ -94,7 +98,6 @@ export class UsersTableComponent implements OnInit {
   }
 
   loadUsers(): void {
-
     this.usersService.getUsers(0)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe(users => {
@@ -147,7 +150,12 @@ export class UsersTableComponent implements OnInit {
     this.usersService.deleteUser(userId)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () => this.loadUsers(),
+        next: () => {
+          this.loadUsers();
+
+          // Show success notification
+          this.snackBarService.showSuccessNotification('Usuario eliminado exitosamente');
+        },
         error: () => console.error('Error deleting user'),
       });
   }
