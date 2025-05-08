@@ -1,1 +1,71 @@
-<p>users-table works!</p>
+<div class="table-container">
+  <table mat-table [dataSource]="dataSource()" class="mat-elevation-z8">
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let user">{{user.name}}</td>
+    </ng-container>
+
+    <!-- Lastname Column -->
+    <ng-container matColumnDef="lastName">
+      <th mat-header-cell *matHeaderCellDef>Lastname</th>
+      <td mat-cell *matCellDef="let user">{{user.lastname}}</td>
+    </ng-container>
+
+    <!-- Region Column -->
+    <ng-container matColumnDef="region">
+      <th mat-header-cell *matHeaderCellDef>Region</th>
+      <td mat-cell *matCellDef="let user">{{user.region}}</td>
+    </ng-container>
+
+    <!-- Country Column -->
+    <ng-container matColumnDef="country">
+      <th mat-header-cell *matHeaderCellDef>Country</th>
+      <td mat-cell *matCellDef="let user">{{user.country}}</td>
+    </ng-container>
+
+    <!-- Enable Column -->
+    <ng-container matColumnDef="enable">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let user">
+        <mat-chip class="status-chip" [ngClass]="{ 'active': user.enable, 'inactive': !user.enable }">
+          {{user.enable ? 'Active' : 'Inactive'}}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Updated At Column -->
+    <ng-container matColumnDef="updatedAt">
+      <th mat-header-cell *matHeaderCellDef>Last update</th>
+      <td mat-cell *matCellDef="let user">{{user.updatedAt | date}}</td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let user">
+        <!-- Edit Button -->
+        <button mat-mini-fab color="primary" class="edit-button" (click)="editUser(user)">
+          <mat-icon>edit</mat-icon>
+        </button>
+
+        <!-- Delete Button -->
+        <button mat-mini-fab color="warn" class="delete-button" (click)="deleteUser(user)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- No Data Row -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="6">
+        <div class="no-data-message">
+          No data available
+        </div>
+      </td>
+    </tr>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+  </table>
+</div>

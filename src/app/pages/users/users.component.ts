@@ -3,10 +3,8 @@ import { UsersTableComponent } from '../../components/users-table/users-table.co
 
 @Component({
   selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrl: './users.component.scss',
   imports: [UsersTableComponent],
+  templateUrl: './users.component.html',
+  styleUrls: ['./users.component.scss']
 })
-export class UsersComponent {
-
-}
+export class UsersComponent { }
