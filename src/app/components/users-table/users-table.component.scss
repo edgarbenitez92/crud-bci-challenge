@@ -1,65 +1,64 @@
 .table-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  overflow-x: auto;
-  min-height: 100px;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+
+  .search-field {
+    width: 100%;
+
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      background-color: #fff;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
 
   table {
     width: 100%;
 
-    th {
-      padding: 1rem;
-      font-weight: 500;
+    .center-cell {
       text-align: center;
     }
 
-    td {
-      padding: 1rem;
+    .mat-mdc-header-cell {
+      font-weight: bold;
+      font-size: 14px;
 
-      // Centered columns
-      &.mat-column-region,
-      &.mat-column-country,
-      &.mat-column-enable,
-      &.mat-column-updatedAt,
-      &.mat-column-actions {
-        text-align: center;
-
-        .status-chip {
-          &.active {
-            background-color: green;
-          }
-
-          &.inactive {
-            background-color: red;
-          }
-
-          ::ng-deep .mat-mdc-chip-action-label {
-            color: white;
-          }
-        }
-
-        .edit-button {
-          margin-right: 0.5rem;
-        }
-      }
-
-      // Left aligned columns
-      &.mat-column-name,
-      &.mat-column-lastName {
-        text-align: left;
+      ::ng-deep .mat-sort-header-container {
+        justify-content: center;
       }
     }
 
+    .status-chip {
+      &.active {
+        background-color: #4caf50;
+
+        ::ng-deep .mat-mdc-chip-action-label {
+          color: white;
+        }
+      }
+
+      &.inactive {
+        background-color: #f44336;
+
+        ::ng-deep .mat-mdc-chip-action-label {
+          color: white;
+        }
+      }
+    }
+
+    .edit-button {
+      margin-right: 8px;
+    }
+
     .no-data-message {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
       padding: 2rem;
-      font-size: 1.1rem;
-      color: #666;
+      text-align: center;
+      color: rgba(0, 0, 0, 0.54);
+      font-size: 16px;
     }
   }
 }

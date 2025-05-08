@@ -12,7 +12,7 @@ export class UsersService {
 
   getUsers(): Observable<User[]> {
     return of(this.users()).pipe(
-      delay(100000) // Simulate network delay of 1 second to show loading
+      delay(1500) // Simulate network delay of 1 second to show loading
     );
   }
 }
