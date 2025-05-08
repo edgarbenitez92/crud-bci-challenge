@@ -20,25 +20,25 @@
     <table mat-table [dataSource]="usersDataSource()" multiTemplateDataRows class="mat-elevation-z8 fade-in">
       <!-- Name Column -->
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef class="headers-table">Name</th>
+        <th mat-header-cell *matHeaderCellDef class="center-cell headers-table">Name</th>
         <td mat-cell *matCellDef="let user">{{user.name}} {{user.lastname}}</td>
       </ng-container>
 
       <!-- Email Column -->
       <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef class="headers-table" [hidden]="isMobile()">Email</th>
+        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="center-cell headers-table">Email</th>
         <td mat-cell *matCellDef="let user" [hidden]="isMobile()">{{user.email}}</td>
       </ng-container>
 
       <!-- Country Column -->
       <ng-container matColumnDef="country">
-        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="headers-table">Country</th>
+        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="center-cell headers-table">Country</th>
         <td mat-cell *matCellDef="let user" [hidden]="isMobile()">{{user.country}}</td>
       </ng-container>
 
       <!-- Enable Column -->
       <ng-container matColumnDef="enable">
-        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="headers-table">Status</th>
+        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="center-cell headers-table">Status</th>
         <td mat-cell *matCellDef="let user" class="center-cell" [hidden]="isMobile()">
           <mat-chip class="status-chip" [ngClass]="{ 'active': user.enable, 'inactive': !user.enable }">
             {{user.enable ? 'Active' : 'Inactive'}}
@@ -48,7 +48,7 @@
 
       <!-- Updated At Column -->
       <ng-container matColumnDef="updatedAt">
-        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="headers-table">Last update</th>
+        <th mat-header-cell *matHeaderCellDef [hidden]="isMobile()" class="center-cell headers-table">Last update</th>
         <td mat-cell *matCellDef="let user" class="center-cell" [hidden]="isMobile()">
           {{user.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}
         </td>
@@ -83,18 +83,26 @@
             [@detailExpand]="element.id === expandedElementId() ? 'expanded' : 'collapsed'">
             <!-- User details -->
             <div class="detail-user">
-              <div class="column">
-                <span><strong>Country:</strong></span>
-                <span><strong>Status:</strong></span>
-                <span><strong>Email:</strong></span>
-                <span><strong>Updated:</strong></span>
-              </div>
+              <div class="detail-grid">
+                <div class="detail-label">
+                  <strong>Country:</strong>
+                </div>
+                <div class="detail-value">{{element.country}}</div>
 
-              <div class="column">
-                <span>{{element.country}}</span>
-                <span>{{element.enable ? 'Active' : 'Inactive'}}</span>
-                <span>{{element.email}}</span>
-                <span>{{element.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</span>
+                <div class="detail-label">
+                  <strong>Status:</strong>
+                </div>
+                <div class="detail-value">{{element.enable ? 'Active' : 'Inactive'}}</div>
+
+                <div class="detail-label">
+                  <strong>Email:</strong>
+                </div>
+                <div class="detail-value">{{element.email}}</div>
+
+                <div class="detail-label">
+                  <strong>Updated:</strong>
+                </div>
+                <div class="detail-value">{{element.updatedAt | date: 'dd/MM/yyyy HH:mm:ss'}}</div>
               </div>
             </div>
 

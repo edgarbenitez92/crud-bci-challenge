@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class LocalStorageService {
-  private readonly USERS_KEY = 'users_data_challenge';
+  private readonly USERS_KEY = 'users_data';
 
   setItem<T>(key: string, value: T): void {
     localStorage.setItem(key, JSON.stringify(value));
