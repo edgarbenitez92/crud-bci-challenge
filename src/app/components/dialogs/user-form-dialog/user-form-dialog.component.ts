@@ -93,7 +93,7 @@ export class UserFormDialogComponent {
 
   onCountrySelected(event: MatAutocompleteSelectedEvent): void {
     const country = this.countries().find(c => c.name.common === event.option.value);
-    if (country) this.userForm.patchValue({ region: country.region });
+    if (country) this.regionControl?.setValue(country.region);
   }
 
   onSubmit(): void {
@@ -155,6 +155,7 @@ export class UserFormDialogComponent {
   get lastnameControl(): AbstractControl | null { return this.userForm.get('lastname'); }
   get emailControl(): AbstractControl | null { return this.userForm.get('email'); }
   get countryControl(): AbstractControl | null { return this.userForm.get('country'); }
+  get regionControl(): AbstractControl | null { return this.userForm.get('region'); }
   get enableControl(): AbstractControl | null { return this.userForm.get('enable'); }
 
   // Error Message Getters

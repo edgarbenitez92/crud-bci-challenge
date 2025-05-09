@@ -18,6 +18,8 @@ export class CountriesService {
   }
 
   getCountryByName(name: string): Observable<Country> {
-    return this.http.get<Country>(`${environment.apiUrl}/name/${name}?fullText=true`);
+    return this.http.get<Country[]>(`${environment.apiUrl}/name/${name}?fullText=true`).pipe(
+      map(countries => countries[0])
+    );
   }
 } 
