@@ -1,7 +1,7 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, DestroyRef } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 import { finalize, map, tap } from 'rxjs/operators';
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -46,6 +46,7 @@ export class UsersTableComponent implements OnInit {
   private readonly utilsService = inject(UtilsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBarService = inject(SnackBarService);
+  private readonly destroyRef = inject(DestroyRef);
 
   usersDataSource = signal<MatTableDataSource<User>>(new MatTableDataSource<User>([]));
   expandedElementId = signal<number | null>(null);
@@ -82,11 +83,7 @@ export class UsersTableComponent implements OnInit {
   ]);
 
   constructor() {
-    effect(() => {
-      const dataSource = this.usersDataSource();
-      const filter = this.filterValue();
-      dataSource.filter = filter.toLowerCase();
-    });
+    this.onEffectFilterValue();
   }
 
   ngOnInit(): void {
@@ -96,6 +93,30 @@ export class UsersTableComponent implements OnInit {
     setTimeout(() => {
       this.loadUsers();
     }, 1000);
+
+    // Check if new user was created
+    this.checkIfNewUserWasCreated();
+  }
+
+  onEffectFilterValue(): void {
+    effect(() => {
+      const dataSource = this.usersDataSource();
+      const filter = this.filterValue();
+      dataSource.filter = filter.toLowerCase();
+    });
+  }
+
+  checkIfNewUserWasCreated(): void {
+    this.usersService.usersChanged$
+      .pipe(
+        tap(() => {
+          this.isLoading.set(true);
+          this.loadUsers();
+        }),
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
   }
 
   loadUsers(): void {

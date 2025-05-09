@@ -1,9 +1,9 @@
 import { delay } from 'rxjs/operators';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 
-import { User } from '../shared/interfaces/user.interface';
 import { LocalStorageService } from './local-storage.service';
+import { User } from '../shared/interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +11,12 @@ import { LocalStorageService } from './local-storage.service';
 export class UsersService {
   private readonly localStorageService = inject(LocalStorageService);
 
+  private usersChanged = new Subject<void>();
+  readonly usersChanged$ = this.usersChanged.asObservable();
+
   getUsers(delayMs: number = 1000): Observable<User[]> {
     const users = this.localStorageService.getItem<User[]>(this.localStorageService.getUsersKey()) || [];
+    this.localStorageService.setLastIdKey(users);
     return of(users).pipe(delay(delayMs));
   }
 
@@ -20,13 +24,20 @@ export class UsersService {
     const users = this.localStorageService.getItem<User[]>(this.localStorageService.getUsersKey()) || [];
     const newUser: User = {
       ...user,
-      id: this.generateId(users),
+      id: this.generateId(),
       updatedAt: new Date()
     };
 
     users.push(newUser);
     this.localStorageService.setItem(this.localStorageService.getUsersKey(), users);
-    return of(void 0).pipe(delay(1000));
+
+    // Simulate delay in creating a user
+    setTimeout(() => {
+      // Notify subscribers that a new user has been created
+      this.usersChanged.next();
+    }, 500);
+
+    return of(void 0).pipe(delay(500));
   }
 
   updateUser(userId: number, userData: Partial<User>): Observable<void> {
@@ -53,7 +64,9 @@ export class UsersService {
     return of(void 0).pipe(delay(1000));
   }
 
-  private generateId(users: User[]): number {
-    return users.length ? Math.max(...users.map(user => user.id)) + 1 : 1;
+  // Generate a unique id for the user
+  private generateId(): number {
+    const lastId = this.localStorageService.getLastIdKey();
+    return lastId + 1;
   }
 }

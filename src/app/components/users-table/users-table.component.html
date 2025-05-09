@@ -97,7 +97,11 @@
                 <div class="detail-label">
                   <strong>Status:</strong>
                 </div>
-                <div class="detail-value">{{element.enable ? 'Active' : 'Inactive'}}</div>
+                <div class="detail-value">
+                  <mat-chip class="status-chip" [ngClass]="{ 'active': element.enable, 'inactive': !element.enable }">
+                    {{element.enable ? 'Active' : 'Inactive'}}
+                  </mat-chip>
+                </div>
 
                 <div class="detail-label">
                   <strong>Email:</strong>
