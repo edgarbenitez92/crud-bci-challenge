@@ -1,0 +1,12 @@
+// Breakpoints
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px
+);
+
+// Spacing
+$spacing-unit: 8px;
+$container-padding: $spacing-unit * 2;

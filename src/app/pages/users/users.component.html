@@ -1,0 +1,15 @@
+<div class="users-container">
+  <div class="users-header">
+    <div class="title-section">
+      <h1>Users Management</h1>
+      <p class="subtitle">Create, edit and delete users</p>
+    </div>
+
+    <button mat-flat-button color="primary" class="add-user-button" (click)="openNewUserDialog()">
+      <mat-icon>add_circle</mat-icon>
+      Add new user
+    </button>
+  </div>
+
+  <app-users-table></app-users-table>
+</div>

@@ -1,0 +1,12 @@
+// Import all dependencies with @use first
+@use '@angular/material' as mat;
+
+// Abstracts
+@use 'abstracts/variables' as vars;
+@use 'abstracts/animations';
+
+// Base
+@use 'base/reset';
+
+// Components
+@use 'components/snackbar';
