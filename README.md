@@ -6,7 +6,7 @@
 
 A modern user management system built with Angular 19, showcasing CRUD operations, responsive design, and best practices in Angular development.
 
-🔗 [View Demo](https://crud-bci-challenge.netlify.app) <!-- Placeholder URL -->
+🔗 [View Demo](https://crud-users-management.netlify.app)
 
 ## 🌟 Features
 
@@ -133,8 +133,8 @@ The application is deployed using Netlify's continuous deployment pipeline. Ever
 
 ### Production Environment
 
-- **URL**: [https://crud-bci-challenge.netlify.app](https://crud-bci-challenge.netlify.app)
-- **Status**: [![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/crud-bci-challenge/deploys)
+- **URL**: [https://crud-users-management.netlify.app](https://crud-users-management.netlify.app)
+- **Status**: [![Netlify Status](https://api.netlify.com/api/v1/badges/ea5edac8-3cbd-45f6-94f4-3098058b2c6d/deploy-status)](https://app.netlify.com/sites/crud-users-management/deploys)
 
 ### Deployment Features
 
