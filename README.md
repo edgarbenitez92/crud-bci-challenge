@@ -1,59 +1,213 @@
-# CrudBciChallenge
+# User Management System - Angular 19 Challenge
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3.
+![Angular](https://img.shields.io/badge/Angular-19-DD0031?style=flat&logo=angular)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6?style=flat&logo=typescript)
+![Angular Material](https://img.shields.io/badge/Angular_Material-19-607D8B?style=flat&logo=angular)
 
-## Development server
+A modern user management system built with Angular 19, showcasing CRUD operations, responsive design, and best practices in Angular development.
 
-To start a local development server, run:
+🔗 [View Demo](https://crud-bci-challenge.netlify.app) <!-- Placeholder URL -->
+
+## 🌟 Features
+
+- **User Management**
+
+  - Create, Read, Update, and Delete users
+  - Form validation with reactive forms
+  - Real-time filtering and search
+  - Responsive table with expandable rows on mobile
+
+- **Modern UI/UX**
+
+  - Material Design components
+  - Responsive layout
+  - Loading states and animations
+  - Success/Error notifications
+  - Country autocomplete search
+
+- **Technical Features**
+  - Local storage persistence
+  - RxJS for state management
+  - Signal-based reactivity
+  - Lazy loading
+  - Component composition
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18.x or higher)
+- pnpm (v8.x or higher)
+- Angular CLI (v19.2.3)
 
 ```bash
+# Install pnpm globally
+npm install -g pnpm
+
+# Install Angular CLI globally
+pnpm add -g @angular/cli@19.2.3
+```
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/edgarbenitez92/crud-bci-challenge.git
+cd crud-bci-challenge
+```
+
+2. Install dependencies
+
+```bash
+pnpm install
+```
+
+3. Start the development server
+
+```bash
+pnpm start
+# or
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+4. Open your browser and navigate to `http://localhost:4200`
 
-## Code scaffolding
+## 🏗️ Project Structure
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```
+src/
+├── app/
+│   ├── components/         # Reusable components
+│   │   ├── dialogs/        # Dialog components
+│   │   └── users-table/    # Users table component
+│   ├── pages/              # Page components
+│   │   └── users/          # Users page
+│   ├── services/           # Services
+│   │   ├── countries.service.ts
+│   │   ├── local-storage.service.ts
+│   │   ├── snack-bar.service.ts
+│   │   ├── users.service.ts
+│   │   └── utils.service.ts
+│   └── shared/             # Shared resources
+│       ├── animations/     # Animation definitions
+│       ├── interfaces/     # TypeScript interfaces
+│       └── mock/           # Mock data
+└── assets/                 # Static assets
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 💡 Key Concepts
+
+### State Management
+
+- Uses RxJS Subjects for cross-component communication
+- Implements Angular Signals for reactive state management
+- Local storage for data persistence
+
+### Component Architecture
+
+- Smart/Container components (pages)
+- Presentational components (reusable UI elements)
+- Dialog components for user interactions
+
+### Form Handling
+
+- Reactive Forms with validation
+- Custom validators
+- Real-time validation feedback
+- Country search with autocomplete
+
+## 🔧 Available Scripts
 
 ```bash
-ng generate --help
+# Development server
+pnpm start
+
+# Production build
+pnpm build
 ```
 
-## Building
+## 🚀 Deployment
 
-To build the project run:
+The application is deployed using Netlify's continuous deployment pipeline. Every push to the main branch triggers a new deployment.
+
+### Production Environment
+
+- **URL**: [https://crud-bci-challenge.netlify.app](https://crud-bci-challenge.netlify.app)
+- **Status**: [![Netlify Status](https://api.netlify.com/api/v1/badges/your-badge-id/deploy-status)](https://app.netlify.com/sites/crud-bci-challenge/deploys)
+
+### Deployment Features
+
+- Continuous Deployment from main branch
+- Automatic HTTPS/SSL
+- Preview deployments for pull requests
+- Custom domain configuration
+- Global CDN distribution
+
+### Manual Deployment
+
+If you need to deploy manually, you can build the project and deploy the contents of the `dist` folder:
 
 ```bash
-ng build
+# Build for production
+pnpm build
+
+# The built project will be in the dist/crud-bci-challenge folder
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🌐 External APIs
 
-## Running unit tests
+The application integrates with:
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+- [REST Countries API](https://restcountries.com/) - For country data and search
 
-```bash
-ng test
-```
+## 📱 Responsive Design
 
-## Running end-to-end tests
+The application is fully responsive and provides:
 
-For end-to-end (e2e) testing, run:
+- Desktop-optimized table view
+- Mobile-friendly expandable rows
+- Adaptive layout for different screen sizes
+- Touch-friendly interactions
 
-```bash
-ng e2e
-```
+## 🔒 Security Considerations
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- Input sanitization
+- Form validation
+- Secure local storage handling
+- Error boundary implementation
 
-## Additional Resources
+## 🤝 Contributing
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 Development Notes
+
+- Uses Angular Material for UI components
+- Implements lazy loading for better performance
+- Follows Angular style guide and best practices
+- Uses TypeScript strict mode
+- Implements proper error handling
+
+## ✨ Best Practices Implemented
+
+- Proper component composition
+- Service layer abstraction
+- Reactive programming patterns
+- Clean code principles
+- Consistent error handling
+- Comprehensive documentation
+- Type safety with TypeScript
+- Responsive design patterns
+- Performance optimization
+
+## 📚 Additional Resources
+
+- [Angular Documentation](https://angular.dev/)
+- [Angular Material](https://material.angular.io/)
+- [RxJS Documentation](https://rxjs.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
