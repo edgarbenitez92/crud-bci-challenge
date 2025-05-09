@@ -1,7 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { debounceTime, distinctUntilChanged, filter, finalize, switchMap } from 'rxjs/operators';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { debounceTime, distinctUntilChanged, filter, finalize, switchMap, catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of } from 'rxjs';
 
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -58,7 +60,11 @@ export class UserFormDialogComponent {
     // Initialize form if editing
     if (this.data) this.userForm.patchValue(this.data);
 
-    // Setup country search
+    // Country search on value change
+    this.onCountryValueChange();
+  }
+
+  onCountryValueChange(): void {
     this.countryControl?.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -66,10 +72,21 @@ export class UserFormDialogComponent {
       switchMap(value => {
         this.isSearchingCountries.set(true);
         return this.countriesService.searchCountries(value).pipe(
+          catchError(() => {
+            this.countries.set([]);
+            this.countryControl?.setErrors({ notFound: true });
+
+            // Show error notification
+            this.snackBarService.showErrorNotification('Country not found. Please try with another country.');
+
+            // Return empty observable to continue the flow
+            return of([]);
+          }),
           finalize(() => this.isSearchingCountries.set(false))
         );
       })
     ).subscribe(countries => {
+      this.countryControl?.setErrors(countries.length === 0 ? { notFound: true } : null);
       this.countries.set(countries);
     });
   }
@@ -86,37 +103,45 @@ export class UserFormDialogComponent {
     }
 
     const userFormValue = this.userForm.value;
-
-    const userData = {
-      name: userFormValue.name.trim(),
-      lastname: userFormValue.lastname.trim(),
-      email: userFormValue.email.trim(),
-      country: userFormValue.country,
-      region: userFormValue.region,
-      enable: userFormValue.enable,
-      createdAt: new Date()
-    };
-
     this.isLoading.set(true);
 
-    const actionToExecute$ = this.data
-      ? this.usersService.updateUser(this.data.id, userData)
-      : this.usersService.createUser(userData);
+    // Validate country and then create/update user
+    this.countriesService.getCountryByName(userFormValue.country).pipe(
+      switchMap(country => {
+        if (!country) {
+          throw new Error('Country not found');
+        }
 
-    actionToExecute$.pipe(
+        const userData = {
+          name: userFormValue.name.trim(),
+          lastname: userFormValue.lastname.trim(),
+          email: userFormValue.email.trim(),
+          country: userFormValue.country,
+          region: country.region,
+          enable: userFormValue.enable,
+          createdAt: new Date()
+        };
+
+        return this.data
+          ? this.usersService.updateUser(this.data.id, userData)
+          : this.usersService.createUser(userData);
+      }),
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: () => {
-        // Show success notification
         const snackBarMessage = this.data ? 'User updated successfully' : 'User created successfully';
         this.snackBarService.showSuccessNotification(snackBarMessage);
-
-        // Close dialog
         this.dialogRef.close(true);
       },
-      error: () => {
-        // Show error notification
-        this.snackBarService.showErrorNotification('Error processing request');
+      error: (error: HttpErrorResponse) => {
+        console.error(error);
+
+        if (error.status === 404) {
+          this.snackBarService.showErrorNotification('Country not found. Please select a valid country from the list.');
+          return;
+        }
+
+        this.snackBarService.showErrorNotification('Error processing request, please try again later.');
       }
     });
   }
@@ -130,6 +155,7 @@ export class UserFormDialogComponent {
   get lastnameControl(): AbstractControl | null { return this.userForm.get('lastname'); }
   get emailControl(): AbstractControl | null { return this.userForm.get('email'); }
   get countryControl(): AbstractControl | null { return this.userForm.get('country'); }
+  get enableControl(): AbstractControl | null { return this.userForm.get('enable'); }
 
   // Error Message Getters
   get nameErrorMessage(): string {
@@ -156,6 +182,7 @@ export class UserFormDialogComponent {
   get countryErrorMessage(): string {
     if (!this.countryControl?.errors) return '';
     if (this.countryControl.errors['required']) return 'Country is required';
+    if (this.countryControl.errors['notFound']) return 'Country not found. Please try with another country.';
     return '';
   }
 }
